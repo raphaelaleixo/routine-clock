@@ -29,7 +29,7 @@ const WrapperStyle = {
 };
 
 const ArrowStyle = {
-  background: "#001219",
+  background: "#f7fff7",
   position: "absolute",
   left: "50%",
   height: "3em",
