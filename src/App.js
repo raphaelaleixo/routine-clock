@@ -1,8 +1,9 @@
 import dayjs from "dayjs";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import useClock from "./hooks/useClock";
 import ClockFace from "./components/clockFace";
+import RulerWrapper from "./components/ruler/rulerWrapper";
 
 const calendarEvent = [
   {
@@ -58,7 +59,7 @@ dayjs.extend(customParseFormat);
 
 function App() {
   const { dayjsDate } = useClock();
-  const [todayEvent, setTodayEvent] = useState(calendarEvent);
+  const [todayEvent] = useState(calendarEvent);
   const [nextEvent, setNextEvent] = useState(null);
   const [dayStart, setDayStart] = useState(
     dayjsDate.set("hour", 0).set("minute", 0)
@@ -86,63 +87,20 @@ function App() {
         setClassName("");
       }, 1000);
     }
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [dayjsDate, dayStart, nextEvent]);
 
   return (
     <div className="App">
       <ClockFace calendar={todayEvent} />
-      <aside>
-        <div
-          className={className}
-          style={{
-            transform: `translateX(-${percentage * 100}%)`,
-          }}
-        >
-          {todayEvent.map((event, i) => {
-            const eventStart = event.start
-              ? dayjs(event.start, "HH mm")
-              : dayjs("00:00", "HH mm");
-            const next = todayEvent[i + 1];
-            const eventEnd = next
-              ? dayjs(next.start, "HH mm").subtract(1, "minute")
-              : dayjs("23:59", "HH mm");
-            const eventDuration = eventEnd.diff(eventStart, "minutes");
-            return (
-              <div key={event.key} style={{ backgroundColor: event.color }}>
-                {[...Array(eventDuration).keys()].map((tick) => (
-                  <span key={tick} />
-                ))}
-              </div>
-            );
-          })}
-        </div>
-        {nextEvent ? (
-          <div
-            className={className}
-            style={{
-              transform: `translateX(${(1 - percentage) * 100}%)`,
-            }}
-          >
-            {nextEvent.map((event, i) => {
-              const eventStart = event.start
-                ? dayjs(event.start, "HH mm")
-                : dayjs("00:00", "HH mm");
-              const next = todayEvent[i + 1];
-              const eventEnd = next
-                ? dayjs(next.start, "HH mm").subtract(1, "minute")
-                : dayjs("23:59", "HH mm");
-              const eventDuration = eventEnd.diff(eventStart, "minutes");
-              return (
-                <div key={event.key} style={{ backgroundColor: event.color }}>
-                  {[...Array(eventDuration).keys()].map((tick) => (
-                    <span key={tick} />
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
-      </aside>
+      <RulerWrapper
+        className={className}
+        nextEvent={nextEvent}
+        percentage={percentage}
+        todayEvent={todayEvent}
+      />
     </div>
   );
 }

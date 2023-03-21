@@ -16,7 +16,7 @@ const ClockFace = ({ time, calendar }) => {
 
   return (
     <section style={{ backgroundColor: targetEvent.color }}>
-      <img src={`/images/${targetEvent.image}.svg`} />
+      <img alt="" src={`/images/${targetEvent.image}.svg`} />
       <div>
         <time>
           <span>{hours}</span>
