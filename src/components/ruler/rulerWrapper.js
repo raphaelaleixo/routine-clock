@@ -6,7 +6,7 @@ const RulerWrapper = ({ className, todayEvent, nextEvent, percentage }) => {
       <Ruler
         className={className}
         targetEvent={todayEvent}
-        transform={`translateX(calc(-${percentage * 100}% - 5px))`}
+        transform={`translateX(calc(-${percentage * 100}%))`}
       />
       {nextEvent ? (
         <Ruler

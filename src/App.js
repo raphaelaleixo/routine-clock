@@ -4,65 +4,17 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import useClock from "./hooks/useClock";
 import ClockFace from "./components/clockFace";
 import RulerWrapper from "./components/ruler/rulerWrapper";
-
-const calendarEvent = [
-  {
-    key: "sleep",
-    color: "#005F73",
-    text: "Time to sleep",
-    image: "sleep",
-  },
-  {
-    key: "breakfast",
-    start: "07:00",
-    color: "#CA6702",
-    text: "Good morning! Time for breakfast!",
-  },
-  {
-    key: "daycare",
-    start: "08:30",
-    color: "#EE9B00",
-    text: "Let's go to the daycare",
-    image: "study",
-  },
-  {
-    key: "playTime",
-    start: "17:00",
-    color: "#94D2BD",
-    text: "Playtime!",
-    image: "play",
-  },
-  {
-    key: "dinner",
-    start: "18:00",
-    color: "#CA6702",
-    text: "Time to eat dinner",
-    image: "eat",
-  },
-  {
-    key: "bath",
-    start: "19:00",
-    color: "#0A9396",
-    text: "Let's take a bath",
-    image: "bath",
-  },
-  {
-    key: "sleep2",
-    start: "20:00",
-    color: "#005F73",
-    text: "Time to sleep",
-    image: "sleep",
-  },
-];
+import { useFetchFromSheets } from "./hooks/useFetchFromSheets";
 
 dayjs.extend(customParseFormat);
 
 function App() {
+  const { weekday } = useFetchFromSheets();
   const { dayjsDate } = useClock();
-  const [todayEvent] = useState(calendarEvent);
+  const [todayEvent, setTodayEvent] = useState(null);
   const [nextEvent, setNextEvent] = useState(null);
   const [dayStart, setDayStart] = useState(
-    dayjsDate.set("hour", 0).set("minute", 0)
+    dayjsDate.set("hour", 0).set("minute", 0).set("second", 0)
   );
   const [className, setClassName] = useState("");
 
@@ -71,10 +23,14 @@ function App() {
   const percentage = timePassed / 86400;
 
   useEffect(() => {
+    setTodayEvent(weekday);
+  }, [weekday]);
+
+  useEffect(() => {
     let timeout;
     const minDateToNext = dayjsDate.set("hour", 22).set("minute", 0);
     if (nextEvent === null && dayjsDate.isAfter(minDateToNext)) {
-      setNextEvent(calendarEvent);
+      setNextEvent(todayEvent);
     }
     if (
       nextEvent !== null &&
@@ -90,9 +46,9 @@ function App() {
     return () => {
       clearTimeout(timeout);
     };
-  }, [dayjsDate, dayStart, nextEvent]);
+  }, [dayjsDate, dayStart, nextEvent, todayEvent]);
 
-  return (
+  return todayEvent ? (
     <div className="App">
       <ClockFace calendar={todayEvent} />
       <RulerWrapper
@@ -102,7 +58,7 @@ function App() {
         todayEvent={todayEvent}
       />
     </div>
-  );
+  ) : null;
 }
 
 export default App;
